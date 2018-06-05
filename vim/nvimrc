@@ -57,6 +57,7 @@ endif
         Plug 'tpope/vim-sleuth'                     " Detect tabs / spaces
         Plug 'tpope/vim-surround'                   " Surround things with things
         Plug 'vim-airline/vim-airline'              " Cool ass statusline
+        Plug 'terryma/vim-multiple-cursors'         " Sublime like multi-cursor
         " Setting vim specific autocomplete
         if has('nvim')
             Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -140,7 +141,7 @@ endif
     " }
 
     " deoplete / neocomplete {
-        if has('nvim')
+        if has('nvim')  
             let g:deoplete#enable_at_startup = 1
             let g:deoplete#enable_smart_case = 2
         else
@@ -308,7 +309,7 @@ endif
     set smartcase                                   " Case sensitive when uc present
     set wildmenu                                    " Show a list of completions for commands
     set wildmode=list:longest,full                  " Command <Tab> completion, list matches,then longest part, then all.
-    set whichwrap=b,s,h,l,<,>,[,]                   " Backspace and cursor keys wrap too
+    "set whichwrap=b,s,h,l,<,>,[,]                  " Backspace and cursor keys wrap too
     set scrolljump=5                                " Lines to scroll when cursor leaves screen
     set scrolloff=3                                 " Minimum lines to keep above/below cursor
     set list
@@ -322,7 +323,7 @@ endif
         autocmd vimrc GUIEnter * set visualbell t_vb=
     endif
 
-    au TermOpen * setlocal nonumber norelativenumber
+    "au TermOpen * setlocal nonumber norelativenumber
 " }
 
 " Formatting {
