@@ -86,6 +86,7 @@ source_if_exists ~/.fzf.zsh
 source_if_exists /usr/share/fzf/shell/key-bindings.zsh
 source_if_exists /usr/share/zsh/site-functions/fzf
 source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
+source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/local/opt/fzf/site-functions/fzf
 
 
