@@ -65,7 +65,9 @@ zplug "plugins/git", from:oh-my-zsh, if:"hash git"
 # Prune git branches super easily
 zplug "Seinh/git-prune", from:github, if:"hash git"
 # Syntax highlighting for commands
-zplug "zsh-users/zsh-syntax-highlighting", from:github, defer:3
+zplug "zsh-users/zsh-syntax-highlighting", from:github, defer:2
+# Search substring
+zplug "zsh-users/zsh-history-substring-search", from:github, defer:3
 # Theme!
 zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
 # Actually install plugins, prompt user input
@@ -75,6 +77,7 @@ if ! zplug check --verbose; then
         echo; zplug install
     fi
 fi
+
 
 zplug load
 
@@ -88,6 +91,20 @@ source_if_exists /usr/share/zsh/site-functions/fzf
 source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
 source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/local/opt/fzf/site-functions/fzf
+
+# zsh variables
+SAVEHIST=1000000
+HISTSIZE=100000
+HISTFILESIZE=$HISTSIZE
+# Make some commands not show up in history.
+#HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help:ll:"
+
+# zsh-history-substring-search
+if zplug check "zsh-users/zsh-history-substring-search"; then
+  zmodload zsh/terminfo
+  [ -n "${terminfo[kcuu1]}" ] && bindkey "${terminfo[kcuu1]}" history-substring-search-up
+  [ -n "${terminfo[kcud1]}" ] && bindkey "${terminfo[kcud1]}" history-substring-search-down
+fi
 
 
 # Source pyenv init if it exists
