@@ -64,7 +64,9 @@ zplug "lib/directories", from:oh-my-zsh
 zplug "plugins/git", from:oh-my-zsh, if:"hash git"
 # add support for kubectl and namespace prompt
 zplug "plugins/kube-ps1", from:oh-my-zsh
-#zplug "superbrothers/zsh-kubectl-prompt", from:github
+# Add right-prompt to: repos/sindresorhus/pure/pure.zsh
+# RPROMPT='%(?.%F{${prompt_pure_colors[virtualenv]}$(kube_ps1)%f'
+
 # Prune git branches super easily
 zplug "Seinh/git-prune", from:github, if:"hash git"
 # Syntax highlighting for commands
@@ -132,10 +134,8 @@ setopt interactivecomments
 
 source_if_exists ~/.zshexport
 
-
-# Modify the PS1 to include the kube context
-# PS1='$(kube_ps1)'$PS1
-#
+# Enable right-prompt for Kube context
+RPROMPT='%(?.%F{${prompt_pure_colors[virtualenv]}$(kube_ps1)%f'
 
 # Default Golang PATH
 export GOPATH=$HOME/go
