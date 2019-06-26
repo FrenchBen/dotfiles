@@ -26,9 +26,9 @@ path_if_exists /usr/local/go/bin
 path_if_exists ~/go/bin
 
 local MAIN_EDITOR="vim"
-if [[ $(hash nvim 2>/dev/null) != 0 ]];then
-    MAIN_EDITOR="nvim"
-fi
+# if [[ $(hash nvim 2>/dev/null) != 0 ]];then
+#     MAIN_EDITOR="nvim"
+# fi
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
@@ -62,6 +62,9 @@ zplug "lib/history", from:oh-my-zsh
 zplug "lib/directories", from:oh-my-zsh
 # gst, gco, gc -> All the git shortcut goodness
 zplug "plugins/git", from:oh-my-zsh, if:"hash git"
+# add support for kubectl and namespace prompt
+zplug "plugins/kube-ps1", from:oh-my-zsh
+#zplug "superbrothers/zsh-kubectl-prompt", from:github
 # Prune git branches super easily
 zplug "Seinh/git-prune", from:github, if:"hash git"
 # Syntax highlighting for commands
@@ -79,6 +82,8 @@ if ! zplug check --verbose; then
 fi
 
 
+# debug zplug loading
+# zplug load --verbose
 zplug load
 
 # ================================================================
@@ -124,3 +129,13 @@ source_if_exists /usr/local/bin/virtualenvwrapper.sh
 
 # I can have comments at the end of my commands too :D
 setopt interactivecomments
+
+source_if_exists ~/.zshexport
+
+
+# Modify the PS1 to include the kube context
+# PS1='$(kube_ps1)'$PS1
+#
+
+# Default Golang PATH
+export GOPATH=$HOME/go
