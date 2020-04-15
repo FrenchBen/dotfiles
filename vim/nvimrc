@@ -18,14 +18,13 @@ if !empty(glob(g:neovim3_venv))
     let g:python3_host_prog=g:neovim3_venv
 endif
 
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+let s:plug_location='~/.vim/autoload/plug.vim'
+if has('nvim')
+    let s:plug_location='~/.local/share/nvim/site/autoload/plug.vim'
 endif
 
-if empty(expand('~/.config/nvim/autoload/plug.vim'))
-    silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
+if empty(glob(expand(s:plug_location)))
+    silent !curl -fLo expand(s:plug_location) --create-dirs
         \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
@@ -36,8 +35,9 @@ endif
         Plug 'Xuyuanp/nerdtree-git-plugin'          " Git plugin for nerdtree
         Plug 'airblade/vim-gitgutter'               " Show git changes
         Plug 'airblade/vim-rooter'                  " Change pwd to root for a file
+        Plug 'amix/vim-zenroom2'
         Plug 'benekastah/neomake'                   " Syntax checking
-        Plug 'ctrlpvim/ctrlp.vim'                   " Fuzzy file finder
+        Plug 'ekalinin/Dockerfile.vim'              " Dockerfile stuff
         Plug 'ervandew/supertab'                    " Supertab!
         Plug 'haya14busa/incsearch.vim'             " Better searching
         Plug 'jiangmiao/auto-pairs'                 " Auto pair parens and brackets
@@ -58,6 +58,16 @@ endif
         Plug 'tpope/vim-surround'                   " Surround things with things
         Plug 'vim-airline/vim-airline'              " Cool ass statusline
         Plug 'terryma/vim-multiple-cursors'         " Sublime like multi-cursor
+        Plug 'christoomey/vim-tmux-navigator'       " Tmux naviation so I don't get carpal tunnel
+        Plug 'b4b4r07/vim-hcl', {'for': 'hcl'}
+        Plug 'ryanoasis/vim-devicons'
+        Plug 'neoclide/coc.nvim', {'tag': '*', 'branch': 'release'}
+
+        Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+        Plug 'junegunn/fzf.vim'
+
+        Plug 'junegunn/goyo.vim'
+        Plug 'junegunn/limelight.vim'
         " Setting vim specific autocomplete
         if has('nvim')
             Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -74,14 +84,6 @@ endif
         " Go specific {
             Plug 'fatih/vim-go', {'for': 'go'}
             let g:go_metalinter_autosave = 0
-            " format with goimports instead of gofmt
-            " let g:go_fmt_command = "goimports"
-            let editor_name='vim'
-            if has('nvim')
-                let editor_name='nvim'
-            endif
-            let gocode_script=g:plugins_location . '/gocode/'. editor_name .'/symlink.sh'
-            Plug 'nsf/gocode', {'for': 'go', 'rtp': editor_name, 'do': gocode_script } " Go autocompletion
             Plug 'godoctor/godoctor.vim', {'for': 'go'} " Gocode refactoring tool
         " }
         "
@@ -93,8 +95,25 @@ endif
             Plug 'cespare/vim-toml', {'for': 'toml'}
         " }
 
-        " Powershell {
-            Plug 'PProvost/vim-ps1', {'for': 'ps1'}
+        " Rust {
+            Plug 'rust-lang/rust.vim', {'for': 'rust'}
+            Plug 'racer-rust/vim-racer', {'for': 'rust'}
+            let g:racer_cmd = substitute(system('which racer'), '\n', '', '')
+            au FileType rust nmap gd <Plug>(rust-def)
+            au FileType rust nmap gs <Plug>(rust-def-split)
+            au FileType rust nmap gx <Plug>(rust-def-vertical)
+            au FileType rust nmap <leader>gd <Plug>(rust-doc)
+        " }
+
+        " vim-tmux-navigator {
+            " Disable tmux navigator when zooming the Vim pane
+            let g:tmux_navigator_disable_when_zoomed = 1
+        " }
+
+        " vim-terraform {
+            Plug 'hashivim/vim-terraform', {'for': 'tf'}
+            let g:terraform_align=1
+            let g:terraform_fmt_on_save=1
         " }
 
     call plug#end()
@@ -104,9 +123,6 @@ endif
     " }
 
     " neomake {
-        " Mainly for python only right now, could expand to other things
-        let g:neomake_python_enabled_makers = ['flake8']
-        nnoremap <Leader>zz :Neomake flake8<CR>
         " Run neomake on write
         autocmd! vimrc BufWritePost * Neomake
     " }
@@ -161,6 +177,8 @@ endif
         let g:airline_theme='gruvbox'
         let g:airline_powerline_fonts = 1
         let g:airline#extensions#tabline#enabled = 1
+        let g:airline_section_error = '%{airline#util#wrap(airline#extensions#coc#get_error(),0)}'
+        let g:airline_section_warning = '%{airline#util#wrap(airline#extensions#coc#get_warning(),0)}'
     " }
     "
     " NERDTree {
@@ -190,11 +208,69 @@ endif
     " rainbow {
         let g:rainbow_active = 1
     " }
+    "
+    " fzf {
+        " Using floating windows of Neovim to start fzf
+        if has('nvim')
+          function! FloatingFZF(width, height, border_highlight)
+            function! s:create_float(hl, opts)
+              let buf = nvim_create_buf(v:false, v:true)
+              let opts = extend({'relative': 'editor', 'style': 'minimal'}, a:opts)
+              let win = nvim_open_win(buf, v:true, opts)
+              call setwinvar(win, '&winhighlight', 'NormalFloat:'.a:hl)
+              call setwinvar(win, '&colorcolumn', '')
+              return buf
+            endfunction
+
+            " Size and position
+            let width = float2nr(&columns * a:width)
+            let height = float2nr(&lines * a:height)
+            let row = float2nr((&lines - height) / 2)
+            let col = float2nr((&columns - width) / 2)
+
+            " Border
+            let top = '╭' . repeat('─', width - 2) . '╮'
+            let mid = '│' . repeat(' ', width - 2) . '│'
+            let bot = '╰' . repeat('─', width - 2) . '╯'
+            let border = [top] + repeat([mid], height - 2) + [bot]
+
+            " Draw frame
+            let s:frame = s:create_float(a:border_highlight, {'row': row, 'col': col, 'width': width, 'height': height})
+            call nvim_buf_set_lines(s:frame, 0, -1, v:true, border)
+
+            " Draw viewport
+            call s:create_float('Normal', {'row': row + 1, 'col': col + 2, 'width': width - 4, 'height': height - 2})
+            autocmd BufWipeout <buffer> execute 'bwipeout' s:frame
+          endfunction
+
+          let g:fzf_layout = { 'window': 'call FloatingFZF(0.9, 0.6, "Comment")' }
+        endif
+
+        " Hide statusline
+        if has('nvim') && !exists('g:fzf_layout')
+          autocmd! FileType fzf
+          autocmd  FileType fzf set laststatus=0 noshowmode noruler
+            \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+        endif
+
+        map <C-p> :Files<CR>
+        let find_command = "find"
+        " For some ungodly reason mac's version of find does not include
+        " -printf, so we need to switch to gfind here
+        if has('macunix')
+            let find_command = "gfind"
+        endif
+        let $FZF_DEFAULT_COMMAND = find_command . " . -type f -not -path '*/\.git/*' -printf '%P\\n'"
+        command! -bang -nargs=* Rg
+          \ call fzf#vim#grep(
+          \   'rg --hidden -g "!.git" --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
+          \   fzf#vim#with_preview(), <bang>0)
+    " }
 " }
 
 " General {
     " Allow a trigger for the background
-    set background=dark " Dark backgrounds cause we're emo
+    set background=dark
     function! ToggleBG()
         let s:tbg = &background
         " Inversion
@@ -265,10 +341,9 @@ endif
         set guioptions-=R
         set guioptions-=L
     endif
-    if has("nvim")
-        " True color support
-        set termguicolors
-    endif
+    " True color support
+    set termguicolors
+
     color gruvbox
 
     set splitbelow
@@ -325,7 +400,9 @@ endif
         autocmd vimrc GUIEnter * set visualbell t_vb=
     endif
 
-    "au TermOpen * setlocal nonumber norelativenumber
+    if has('nvim')
+        au TermOpen * setlocal nonumber norelativenumber
+    endif
 " }
 
 " Formatting {

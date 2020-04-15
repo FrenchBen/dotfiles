@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+NUM=$1
+if [ -z "${NUM}" ]; then
+    echo "Usage: $0 <pr-number>"
+    exit 1
+fi
+REMOTE=${REMOTE:-upstream}
+
+git checkout -q "${REMOTE}/master"
+git branch -Dqf "${REMOTE}/pr/${NUM}" >/dev/null 2>/dev/null
+if ! git fetch -q "${REMOTE}" "pull/${NUM}/head:${REMOTE}/pr/${NUM}" >/dev/null 2>/dev/null; then
+    echo "ERROR: PR #${NUM} doesn't exist for remote '${REMOTE}'"
+    exit 1
+fi
+git checkout -q "${REMOTE}/pr/${NUM}"
+echo "PR #${NUM} checked out for remote '${REMOTE}'"

@@ -16,7 +16,12 @@ alias l="ls -lf ${colorflag}"
 
 alias la="ls -laF ${colorflag}"
 
+alias ll="ls -lh ${colorflag}"
+
 alias ls="command ls ${colorflag}"
+
+# It's extremely annoying that this is not the default
+alias rg="command rg --hidden"
 
 # Always enable colored `grep` output
 # Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
@@ -26,6 +31,8 @@ alias egrep='egrep --color=auto'
 
 alias gitlog="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 alias vup="vagrant destroy -f && vagrant up && vagrant ssh"
+alias vdown="vagrant destroy -f"
+
 alias ssm="aws ssm start-session --target "
 
 alias python="/usr/local/bin/python3"
@@ -37,57 +44,32 @@ kube-crds() {
     kubectl api-resources --verbs=list -o name | xargs -n 1 kubectl get -o name
 }
 
+alias gst="git status"
+alias gd="git diff"
+alias gco="git checkout"
+alias gfa="git fetch --all"
+alias ga="git add"
+alias gc="git commit -v"
+alias gp="git push"
+
 vagrant-kill-all() {
     for i in $(vagrant global-status | grep virtualbox | awk '{ print $1 }'); do
         vagrant destroy -f "$i"
     done
 }
 
-jsonlint() {
-    docker run --rm -v "$(pwd)":/v -w /v sahsu/docker-jsonlint jsonlint "$@"
+
+add-upstream-remote() {
+    git remote add upstream "git@github.com:$1"
 }
 
-docker-upstream-commit() {
-    git log | grep -B 1 "Component: $1" | head -1 | awk '{print $2}'
-}
+working() {
+    # Drop myself into a running tmux session called working
+    # TODO: Add a local setup script in order to initialize local vars
 
-commits-since() {
-    git log --no-merges "$1"...HEAD
-}
-
-pull-jenkins-failures() {
-    curl -fsSL "$1" | grep "FAIL:" | grep -v " --- " | sort -r
-}
-
-# Run a docker container with a shell
-docker-here() {
-    docker run --rm -it \
-        -v "$(pwd):/v" -w /v \
-        "$1" \
-        sh -c 'if [ -e /bin/bash ]; then /bin/bash; else /bin/sh; fi'
-}
-
-alpine() {
-    docker-here alpine:latest
-}
-
-xenial() {
-    docker-here ubuntu:xenial
-}
-
-jessie() {
-    docker-here debian:jessie
-}
-
-fedora() {
-    docker-here fedora:latest
-}
-
-centos() {
-    docker-here centos:latest
-}
-
-busybox() {
-    docker-here busybox:latest
+    # Note to self: -d is a good flag since it allows for aggresive resizing
+    if ! tmux a -d -t working >/dev/null 2>/dev/null; then
+        tmux new -s working
+    fi
 }
 

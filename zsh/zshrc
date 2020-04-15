@@ -1,3 +1,13 @@
+# ╭------------------------------------------╮
+# |                                          |
+# | ███████╗███████╗██╗  ██╗██████╗  ██████╗ |
+# | ╚══███╔╝██╔════╝██║  ██║██╔══██╗██╔════╝ |
+# |   ███╔╝ ███████╗███████║██████╔╝██║      |
+# |  ███╔╝  ╚════██║██╔══██║██╔══██╗██║      |
+# | ███████╗███████║██║  ██║██║  ██║╚██████╗ |
+# | ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ |
+# ╰------------------------------------------╯
+#
 # UNCOMMENT TO BENCHMARK
 # BENCHMARK=1 && zmodload zsh/zprof
 #
@@ -17,7 +27,7 @@ path_if_exists() {
 # Path stuff
 export TERM="xterm-256color"
 
-source_if_exists ~/.cargo/env
+path_if_exists ~/.bin
 
 path_if_exists /usr/local/bin
 
@@ -25,10 +35,19 @@ path_if_exists /usr/local/go/bin
 
 path_if_exists ~/go/bin
 
+path_if_exists ~/.local/bin
+
+path_if_exists /usr/local/sbin/
+
 local MAIN_EDITOR="vim"
 # if [[ $(hash nvim 2>/dev/null) != 0 ]];then
 #     MAIN_EDITOR="nvim"
 # fi
+
+if [[ -d /usr/share/zsh/vendor-completions ]]; then
+    fpath=(/usr/share/zsh/vendor-completions $fpath)
+    autoload -Uz compinit && compinit -i
+fi
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
@@ -58,8 +77,6 @@ zplug "lib/completion", from:oh-my-zsh
 zplug "lib/key-bindings", from:oh-my-zsh
 # History defaults
 zplug "lib/history", from:oh-my-zsh
-# Adds useful aliases for things dealing with directories
-zplug "lib/directories", from:oh-my-zsh
 # gst, gco, gc -> All the git shortcut goodness
 zplug "plugins/git", from:oh-my-zsh, if:"hash git"
 # add support for kubectl and namespace prompt
@@ -73,6 +90,10 @@ zplug "Seinh/git-prune", from:github, if:"hash git"
 zplug "zsh-users/zsh-syntax-highlighting", from:github, defer:2
 # Search substring
 zplug "zsh-users/zsh-history-substring-search", from:github, defer:3
+# conda zshell completion
+zplug "esc/conda-zsh-completion", from:github
+# Syntax highlighting for commands
+zplug "zdharma/fast-syntax-highlighting", from:github, defer:3
 # Theme!
 zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
 # Actually install plugins, prompt user input
@@ -93,6 +114,7 @@ zplug load
 # ================================================================
 # source fzf if it exists
 source_if_exists ~/.fzf.zsh
+source_if_exists ~/.cargo/env
 source_if_exists /usr/share/fzf/shell/key-bindings.zsh
 source_if_exists /usr/share/zsh/site-functions/fzf
 source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
@@ -113,21 +135,14 @@ if zplug check "zsh-users/zsh-history-substring-search"; then
   [ -n "${terminfo[kcud1]}" ] && bindkey "${terminfo[kcud1]}" history-substring-search-down
 fi
 
+setopt    incappendhistory  #Immediately append to the history file, not just when a term is killed
 
 # Source pyenv init if it exists
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 if which pyenv > /dev/null 2>&1; then eval "$(pyenv init -)"; fi
 
-if [[ -n "$BENCHMARK" ]];then
-    zprof > "$HOME/.zsh_benchmark"
-fi
-
-# added by travis gem
-source_if_exists ~/.travis/travis.sh
-
 export WORKON_HOME="$HOME/venvs"
 export PROJECT_HOME="$HOME/projects"
-source_if_exists /usr/local/bin/virtualenvwrapper.sh
 
 # I can have comments at the end of my commands too :D
 setopt interactivecomments
@@ -140,3 +155,14 @@ RPROMPT='%(?.%F{${prompt_pure_colors[virtualenv]}$(kube_ps1)%f'
 # Default Golang PATH
 export GOPATH=$HOME/go
 source_if_exists ~/.aliases-go
+
+# Hey this is so dumb that I have to add this
+export DISABLE_WARN_OUTSIDE_CONTAINER=1
+export GPG_TTY="$(/usr/bin/tty)"
+
+# Source local zshrc if it exists
+source_if_exists ~/.zshrc.local
+
+if [[ -n "$BENCHMARK" ]];then
+    zprof > "$HOME/.zsh_benchmark"
+fi
