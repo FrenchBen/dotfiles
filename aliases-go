@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# use gotest https://github.com/rakyll/gotest
+go() {
+    if [ -x $(hash gotest 2>/dev/null) ] && [ ! -z "$1" ] && [ "$1" = "test" ]; then
+        command gotest "${@:2}"
+    else
+        command go "$@"
+    fi
+}

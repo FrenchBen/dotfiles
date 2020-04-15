@@ -18,6 +18,7 @@
         path: ptpython/config.py
     ~/.ideavimrc: idea/ideavimrc
     ~/.aliases: aliases
+    ~/.aliases-go: aliases-go
     ~/.tmux.conf: tmux/tmux.conf
     ~/.ssh/rc: ssh/rc
 

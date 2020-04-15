@@ -139,3 +139,4 @@ RPROMPT='%(?.%F{${prompt_pure_colors[virtualenv]}$(kube_ps1)%f'
 
 # Default Golang PATH
 export GOPATH=$HOME/go
+source_if_exists ~/.aliases-go
