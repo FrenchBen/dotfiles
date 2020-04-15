@@ -44,13 +44,14 @@ kube-crds() {
     kubectl api-resources --verbs=list -o name | xargs -n 1 kubectl get -o name
 }
 
-alias gst="git status"
-alias gd="git diff"
-alias gco="git checkout"
-alias gfa="git fetch --all"
-alias ga="git add"
-alias gc="git commit -v"
-alias gp="git push"
+# Handled by zplug "plugins/git", from:oh-my-zsh
+# alias gst="git status"
+# alias gd="git diff"
+# alias gco="git checkout"
+# alias gfa="git fetch --all"
+# alias ga="git add"
+# alias gc="git commit -v"
+# alias gp="git push"
 
 vagrant-kill-all() {
     for i in $(vagrant global-status | grep virtualbox | awk '{ print $1 }'); do
