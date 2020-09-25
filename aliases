@@ -39,11 +39,16 @@ alias python="/usr/local/bin/python3"
 alias pip="/usr/local/bin/pip3"
 
 
+alias highcpu="ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head"
+
+
 # List all CRD in the cluster b
 kube-crds() {
     kubectl api-resources --verbs=list -o name | xargs -n 1 kubectl get -o name
 }
 
+# alias kpvc="kubectl get pods -o json | jq -c '.items[] | {name: .metadata.name, namespace: .metadata.namespace, claimName:.spec.volumes[] | select( has (\"persistentVolumeClaim\") ).persistentVolumeClaim.claimName }'"
+alias kpvc="kubectl get pods -o json | jq -c '.items[] | {name: .metadata.name, namespace: .metadata.namespace, claimName: .spec |  select( has (\"volumes\") ).volumes[] | select( has (\"persistentVolumeClaim\") ).persistentVolumeClaim.claimName }'"
 # Handled by zplug "plugins/git", from:oh-my-zsh
 # alias gst="git status"
 # alias gd="git diff"

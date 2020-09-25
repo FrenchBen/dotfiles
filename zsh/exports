@@ -1,0 +1,28 @@
+# Set Helm home for desktop context
+#export HELM_HOME=/Users/frenchben/.helm-desktop
+
+# Export tiller namespace
+#export TILLER_NAMESPACE=973790503
+export TILLER_NAMESPACE=mma-tools
+
+# Export AWS flux namespace
+export FLUX_FORWARD_NAMESPACE=flux
+
+# Export AWS ArgoCD namespace
+# https://argoproj.github.io/argo-cd/getting_started/
+export ARGOCD_OPTS='--port-forward-namespace argocd'
+
+# Export Krew plugin & rust binaries
+export PATH="${PATH}:${HOME}/.krew/bin:${HOME}/.cargo/bin"
+
+
+# Default Golang PATH
+export GOPATH=$HOME/go
+
+# NVM export
+export NVM_DIR="$HOME/.nvm"
+. "/usr/local/opt/nvm/nvm.sh"
+
+# Set Default AWS profile
+#export AWS_DEFAULT_PROFILE=dev
+

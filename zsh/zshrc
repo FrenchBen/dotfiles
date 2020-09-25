@@ -146,6 +146,8 @@ export PROJECT_HOME="$HOME/projects"
 
 # I can have comments at the end of my commands too :D
 setopt interactivecomments
+# Auto add pushd and popd
+setopt auto_pushd
 
 source_if_exists ~/.zshexport
 
@@ -155,6 +157,7 @@ RPROMPT='%(?.%F{${prompt_pure_colors[virtualenv]}$(kube_ps1)%f'
 # Default Golang PATH
 export GOPATH=$HOME/go
 source_if_exists ~/.aliases-go
+source_if_exists ~/.aliases-kube
 
 # Hey this is so dumb that I have to add this
 export DISABLE_WARN_OUTSIDE_CONTAINER=1
@@ -166,3 +169,8 @@ source_if_exists ~/.zshrc.local
 if [[ -n "$BENCHMARK" ]];then
     zprof > "$HOME/.zsh_benchmark"
 fi
+
+# Kumactl completion
+source_if_exists ~/.kuma-completion
+# Anaconda setup
+source_if_exists ~/.conda-hook

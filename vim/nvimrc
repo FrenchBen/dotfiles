@@ -288,7 +288,7 @@ endif
     set encoding=utf8
     scriptencoding utf-8
 
-    set clipboard+=unnamed          " Enable clipboard from OSX
+    " set clipboard+=unnamed          " Enable clipboard from OSX
     set viewoptions=folds,options,cursor,unix,slash
     set virtualedit=onemore         " Allow for cursor beyond last character
     set history=1000                " Store a ton of history
